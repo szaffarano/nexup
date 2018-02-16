@@ -4,6 +4,9 @@ import (
 	"bytes"
 	"crypto/md5"
 	"crypto/sha1"
+	"crypto/tls"
+	"crypto/x509"
+	"errors"
 	"flag"
 	"fmt"
 	"hash"
@@ -51,6 +54,7 @@ type repositoryHash struct {
 func main() {
 	pubfile := Pubfile{}
 	credentials := Credentials{}
+	var err error
 
 	usr, err := user.Current()
 	die(err, 1)
@@ -58,6 +62,7 @@ func main() {
 
 	pubfilePath := flag.String("pubfile", "Pubfile", "Descriptor del artefacto")
 	credentialsPath := flag.String("credentials", defaultCredentialsPath, "Credenciales para autenticarse")
+	truststorePath := flag.String("trust", "", "Path al truststore")
 
 	flag.Parse()
 
@@ -73,7 +78,13 @@ func main() {
 	err = yaml.Unmarshal([]byte(credentialsData), &credentials)
 	die(err, 5)
 
-	repo := NewRepository(pubfile, credentials)
+	var trust []byte
+	if *truststorePath != "" {
+		trust, err = ioutil.ReadFile(*truststorePath)
+		die(err, 6)
+	}
+	repo, err := NewRepository(pubfile, credentials, trust)
+	die(err, 7)
 
 	if len(flag.Args()) == 0 {
 		fmt.Fprintf(os.Stderr, "No se indicaron archivos a publicar")
@@ -84,7 +95,7 @@ func main() {
 		path := flag.Arg(i)
 
 		data, err := ioutil.ReadFile(path)
-		die(err, 6)
+		die(err, -2)
 
 		ext := filepath.Ext(filepath.Base(path))
 		name := strings.TrimSuffix(filepath.Base(path), ext)
@@ -100,16 +111,29 @@ func main() {
 
 		fmt.Println(url)
 
-		repo.upload(url, bytes.NewReader(data))
+		err = repo.upload(url, bytes.NewReader(data))
+		die(err, -3)
 	}
 }
 
 //NewRepository create a Repository with default client HTTP.
-func NewRepository(pubfile Pubfile, credentials Credentials) *Repository {
+func NewRepository(pubfile Pubfile, credentials Credentials, trust []byte) (*Repository, error) {
 	const (
 		nameMd5  = "md5"
 		nameSha1 = "sha1"
 	)
+
+	var client = http.Client{}
+	if trust != nil {
+		ca := x509.NewCertPool()
+		ok := ca.AppendCertsFromPEM(trust)
+		if !ok {
+			return nil, errors.New("Error leyendo certificado")
+		}
+		tlsConf := &tls.Config{RootCAs: ca}
+		tr := &http.Transport{TLSClientConfig: tlsConf}
+		client = http.Client{Transport: tr}
+	}
 
 	shaOneAndMdFive := make(map[string]*repositoryHash)
 
@@ -127,8 +151,8 @@ func NewRepository(pubfile Pubfile, credentials Credentials) *Repository {
 		url:      pubfile.Repository,
 		user:     credentials.Username,
 		password: credentials.Password,
-		client:   &http.Client{},
-		hash:     shaOneAndMdFive}
+		client:   &client,
+		hash:     shaOneAndMdFive}, nil
 
 }
 
