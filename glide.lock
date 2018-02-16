@@ -1,6 +1,15 @@
-hash: da1f7e55a9a2db06313133f74d49ac7d0535b8113efa4e0a46270a9e3a3aa480
-updated: 2018-02-15T22:37:03.153958782-03:00
+hash: 717ab50186deccd33db1ef1148a3ca02281b3eefcb08477b211bde2d037c324d
+updated: 2018-02-16T09:33:22.426312128-03:00
 imports:
+- name: golang.org/x/crypto
+  version: 650f4a345ab4e5b245a3034b110ebc7299e68186
+  subpackages:
+  - ssh/terminal
+- name: golang.org/x/sys
+  version: 37707fdb30a5b38865cfb95e5aab41707daec7fd
+  subpackages:
+  - unix
+  - windows
 - name: gopkg.in/yaml.v2
   version: d670f9405373e636a5a2765eea47fac0c9bc91a4
-testImports: []
+devImports: []

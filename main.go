@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"crypto/md5"
 	"crypto/sha1"
@@ -17,6 +18,9 @@ import (
 	"os/user"
 	"path/filepath"
 	"strings"
+	"syscall"
+
+	"golang.org/x/crypto/ssh/terminal"
 
 	yaml "gopkg.in/yaml.v2"
 )
@@ -69,14 +73,20 @@ func main() {
 	pubfileData, err := ioutil.ReadFile(*pubfilePath)
 	die(err, 2)
 
-	credentialsData, err := ioutil.ReadFile(*credentialsPath)
-	die(err, 3)
+	if _, err := os.Stat(*credentialsPath); os.IsNotExist(err) {
+		fmt.Println("No existe el archivo de credenciales, preguntando")
+		credentials.Username, credentials.Password, err = getCredentials()
+		die(err, 6)
+	} else {
+		credentialsData, err := ioutil.ReadFile(*credentialsPath)
+		die(err, 3)
+
+		err = yaml.Unmarshal([]byte(credentialsData), &credentials)
+		die(err, 5)
+	}
 
 	err = yaml.Unmarshal([]byte(pubfileData), &pubfile)
 	die(err, 4)
-
-	err = yaml.Unmarshal([]byte(credentialsData), &credentials)
-	die(err, 5)
 
 	var trust []byte
 	if *truststorePath != "" {
@@ -161,6 +171,25 @@ func die(err error, code int) {
 		fmt.Fprintf(os.Stderr, "%s\n", err)
 		os.Exit(code)
 	}
+}
+
+func getCredentials() (string, string, error) {
+	reader := bufio.NewReader(os.Stdin)
+
+	fmt.Print("Ingresar nombre de usuario: ")
+	username, err := reader.ReadString('\n')
+	if err != nil {
+		return "", "", errors.New("Error obteniendo el nombre de usuario")
+	}
+
+	fmt.Print("Ingresar contraseña: ")
+	bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
+	if err != nil {
+		return "", "", errors.New("Error obteniendo la contraseña")
+	}
+	password := string(bytePassword)
+
+	return strings.TrimSpace(username), strings.TrimSpace(password), nil
 }
 
 func (n *Repository) upload(url string, data io.Reader) error {
