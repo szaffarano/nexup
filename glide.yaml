@@ -1,0 +1,3 @@
+package: github.com/szaffarano/nexup
+import:
+- package: gopkg.in/yaml.v2
