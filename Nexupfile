@@ -1,26 +1,3 @@
-# Cliente Nexus
-
-## Modo de uso
-
-```sh
-nexup [-v] archivo1 archivo2 ... archivoN
-```
-
-## Configuración
-
-Todos los parámetros de configuración además de leerse de los archivos que se
-detallan a continuación, podrán ser especificados mediante variables de
-ambiente con el prefijo ```NEXUP```.  Por ejemplo, el parámetro ```version```
-(ver archivo Nexupfile), podrá indicarse con la variable ```NEXUP_VERSION```,
-eso aplica para toda la configuración.
-
-### Archivo Nexupfile
-
-Este archivo tiene la configuración de los artefactos a subir.  Se puede 
-especificar con el parámetro --conf, o bien se lee de la ubicación por
-defeto en el directorio actual.  Ejemplo:
-
-```yaml
 system: supersistema
 application: frontend
 version: 4.0.0
@@ -75,18 +52,3 @@ truststores: |
  WHPbqCRiOwY1nQ2pM714A5AuTHhdUDqB1O6gyHA43LL5Z/qHQF1hwFGPa4NrzQU6
  yuGnBXj8ytqU0CwIPX4WecigUCAkVDNx
  -----END CERTIFICATE-----
-```
-
-### Archivo .nexup-credentials
-
-Este archivo contiene las credenciales para autenticarse en el servidor.  Se
-especifica con el parámetro --cred o bien se intenta leer de la ubicación por
-defecto que es ```$HOME/.nexup-credentials```.  Ejemplo
-
-```yaml
-username: nombre-de-usuario
-password: contraseña
-```
-
-Si no se encuentra el archivo ni los valores se especifican mediante variables
-de ambiente, se le preguntará al usuario por los datos de autenticación.

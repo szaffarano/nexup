@@ -1,4 +1,0 @@
-system: supersistema
-application: frontend
-version: 3.0.1
-repository: http://localhost:8081/repository/test-raw
