@@ -42,13 +42,19 @@ func init() {
 	// inicializa flags globales
 	rootCmd.
 		PersistentFlags().
-		BoolVarP(&verbose, "verbose", "v", false, "Imprime información extra")
+		BoolVarP(
+			&verbose,
+			"verbose",
+			"v",
+			false,
+			"Imprime información extra")
 
 	rootCmd.
 		PersistentFlags().
-		StringVar(
+		StringVarP(
 			&cfgFile,
-			"conf",
+			"nexupfile",
+			"n",
 			"",
 			`Archivo de configuración con la información del repositorio
 		 	 y de lo que se quiere subir, por defecto se usa ./Nexupfile
@@ -65,9 +71,10 @@ func init() {
 
 	rootCmd.
 		PersistentFlags().
-		StringVar(
+		StringVarP(
 			&credFile,
-			"cred",
+			"credentials",
+			"c",
 			"",
 			`Archivo de credenciales para autenticarse en el repositorio, por 
 			 defecto se usa $HOME/.nexup-credentials
@@ -80,9 +87,10 @@ func init() {
 
 	rootCmd.
 		PersistentFlags().
-		StringVar(
+		StringVarP(
 			&trustFile,
-			"cacerts",
+			"truststores",
+			"t",
 			"",
 			"Archivo con certificados de las CAs en las cuales confiar")
 }

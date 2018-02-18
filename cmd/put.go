@@ -21,14 +21,16 @@ func init() {
 
 	putCmd.
 		PersistentFlags().
-		BoolVar(&noSha1,
+		BoolVarP(&noSha1,
 			"no-sha1",
+			"S",
 			false,
 			"No subir suma de comprobación sha1 junto con el archivo ")
 	putCmd.
 		PersistentFlags().
-		BoolVar(&mavenRepo,
+		BoolVarP(&mavenRepo,
 			"maven-repo",
+			"m",
 			false,
 			`Se subirán los archivos a un repositorio de tipo maven.  Por 
 		     defecto se asume que el repositorio es raw`)
