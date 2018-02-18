@@ -17,10 +17,18 @@ var (
 
 // Repository es el repositorio nexus
 type Repository struct {
-	url      string
+	URL      string
 	user     string
 	password string
 	client   *http.Client
+}
+
+// Artifact representa un artefacto que se subirá al repositorio
+type Artifact struct {
+	System      string
+	Application string
+	Version     string
+	File        string
 }
 
 // New create a Repository with default client HTTP.
@@ -58,7 +66,7 @@ func New(
 	}
 
 	return &Repository{
-		url:      url,
+		URL:      url,
 		user:     username,
 		password: password,
 		client:   &client}, nil

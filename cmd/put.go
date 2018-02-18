@@ -1,7 +1,10 @@
 package cmd
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -74,21 +77,19 @@ var putCmd = &cobra.Command{
 		}
 
 		for _, f := range args {
-			ext := filepath.Ext(filepath.Base(f))
-			name := strings.TrimSuffix(filepath.Base(f), ext)
+			artifact := repository.Artifact{
+				System:      nexupfile.System,
+				Application: nexupfile.Application,
+				Version:     nexupfile.Version,
+				File:        filepath.Base(f),
+			}
 
-			// TODO parametrizar la generación de la url
-			url := fmt.Sprintf("%s/%s/%s/%s/%s-%s%s",
-				nexupfile.Repository,
-				nexupfile.System,
-				nexupfile.Application,
-				nexupfile.Version,
-				name,
-				nexupfile.Version,
-				ext)
+			url := util.GetRawURL(*repo, artifact)
+			urlSha := fmt.Sprintf("%s.sha1", url)
 
 			fmt.Println(url)
 
+			// 1. hacer put del archivo
 			file, err := os.Open(f)
 			if err != nil {
 				fmt.Println(err)
@@ -100,6 +101,35 @@ var putCmd = &cobra.Command{
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
+			}
+
+			if !noSha1 {
+				// hacer put del sha1
+				fileForSha, err := os.Open(f)
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+				defer fileForSha.Close()
+
+				hash := sha1.New()
+				if _, err := io.Copy(hash, fileForSha); err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+				sha, err := strings.NewReader(hex.EncodeToString(hash.Sum(nil))), nil
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+
+				fmt.Println(urlSha)
+
+				err = repo.Put(urlSha, sha)
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
 			}
 		}
 	},
