@@ -58,8 +58,8 @@ var putCmd = &cobra.Command{
 			}
 		}
 
-		repo, err := repository.NewRepository(
-			nexupfile.Repository, username, password, []byte(nexupfile.Truststores))
+		repo, err := repository.New(
+			nexupfile.Repository, username, password, nexupfile.Truststores)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
