@@ -11,8 +11,28 @@ import (
 	"github.com/szaffarano/nexup/util"
 )
 
+var (
+	noSha1    bool
+	mavenRepo bool
+)
+
 func init() {
 	rootCmd.AddCommand(putCmd)
+
+	putCmd.
+		PersistentFlags().
+		BoolVar(&noSha1,
+			"no-sha1",
+			false,
+			"No subir suma de comprobación sha1 junto con el archivo ")
+	putCmd.
+		PersistentFlags().
+		BoolVar(&mavenRepo,
+			"maven-repo",
+			false,
+			`Se subirán los archivos a un repositorio de tipo maven.  Por 
+		     defecto se asume que el repositorio es raw`)
+
 }
 
 var putCmd = &cobra.Command{

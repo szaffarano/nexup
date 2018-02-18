@@ -24,7 +24,7 @@ var (
 		Use:   "nexup",
 		Short: "Nexup es un comando para subir contenido a repositorios",
 		Long: `Con nexup vas a poder interactuar con repositorios para subir 
-		contenido de una forma simple y amigable`,
+		       contenido de una forma simple y amigable`,
 	}
 )
 
@@ -51,7 +51,7 @@ func init() {
 			"conf",
 			"",
 			`Archivo de configuración con la información del repositorio
-		 	 y de lo que se quiere subir
+		 	 y de lo que se quiere subir, por defecto se usa ./Nexupfile
 
 			 Ejemplo
 
