@@ -19,6 +19,11 @@ TRUSTSTORES ?= $(shell \
 	[ -f $(CURDIR)/cacerts ] && \
 	 cat $(CURDIR)/cacerts 2>/dev/null | base64 --wrap=0)
 
+compile: clean
+	go build \
+		-ldflags '$(FLAG_VER) $(FLAG_DATE) $(FLAG_TRUST)' \
+		-o '$(DIST_DIR)/$(PACKAGE)'
+
 release: $(PLATFORMS)
 	@echo "Construcción exitosa"
 	
@@ -29,7 +34,10 @@ $(PLATFORMS): clean
 	GOOS=$(OS) GOARCH=$(ARCH) go build \
 		-tags release \
 		-ldflags '$(FLAG_VER) $(FLAG_DATE) $(FLAG_TRUST)' \
-		-o '$(DIST_DIR)/$(PACKAGE)-$(VERSION)-$(OS)-$(ARCH)${EXT}' \
+		-o '$(DIST_DIR)/$(OS)-$(ARCH)/$(PACKAGE)${EXT}' \
 		main.go
+	cd $(DIST_DIR); \
+	  zip -r $(PACKAGE)-$(VERSION)-$(OS)-$(ARCH).zip $(OS)-$(ARCH); \
+	  rm -rf $(OS)-$(ARCH)
 
 .PHONY: release $(PLATFORMS) clean
