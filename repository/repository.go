@@ -25,25 +25,27 @@ type Repository struct {
 
 //NewRepository create a Repository with default client HTTP.
 func NewRepository(url string, username string, password string, trust []byte) (*Repository, error) {
-	var cacerts = ""
+	ca := x509.NewCertPool()
 
 	if len(Truststores) > 0 {
 		Truststores = strings.Replace(Truststores, " CER", "_CER", -1)
 		Truststores = strings.Replace(Truststores, " ", "\n", -1)
 		Truststores = strings.Replace(Truststores, "_CER", " CER", -1)
-		cacerts = Truststores
+
+		ok := ca.AppendCertsFromPEM([]byte(Truststores))
+		if !ok {
+			return nil, errors.New("Error leyendo certificados embebidos")
+		}
 	}
 	if trust != nil && len(trust) > 0 {
-		cacerts += string(trust)
+		ok := ca.AppendCertsFromPEM([]byte(trust))
+		if !ok {
+			return nil, errors.New("Error leyendo certificado desde configuración")
+		}
 	}
 
 	var client = http.Client{}
-	if len(cacerts) > 0 {
-		ca := x509.NewCertPool()
-		ok := ca.AppendCertsFromPEM([]byte(cacerts))
-		if !ok {
-			return nil, errors.New("Error leyendo certificado")
-		}
+	if len(ca.Subjects()) > 0 {
 		tlsConf := &tls.Config{RootCAs: ca}
 		tr := &http.Transport{TLSClientConfig: tlsConf}
 		client = http.Client{Transport: tr}
