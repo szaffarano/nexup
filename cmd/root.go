@@ -66,7 +66,7 @@ func init() {
 			 version: 1.2.3
 			 repository: http://host:puerto/repository/etc/etc
 			 truststores: |
-			  .......
+			  <trustores>
 		 	`)
 
 	rootCmd.
@@ -122,6 +122,11 @@ func initconfig() {
 
 	credentials.Unmarshal(&nexupfileCredentials)
 	config.Unmarshal(&nexupfile)
+
+	if err := nexupfile.Validate(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
 
 func initViper(instance *viper.Viper, defaults map[string]string) {
