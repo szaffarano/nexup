@@ -7,3 +7,7 @@ import:
   version: ^1.0.0
 - package: github.com/spf13/cobra
   version: ^0.0.1
+- package: github.com/cpuguy83/go-md2man
+  version: ^1.0.8
+  subpackages:
+  - md2man
